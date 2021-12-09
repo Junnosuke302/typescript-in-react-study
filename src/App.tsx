@@ -1,42 +1,26 @@
-import axios from 'axios';
-import { useState } from 'react';
 import './App.css';
-import { Text } from './Text';
-import { Todo } from './Todo';
-import { TodoType } from "./types/todo";
-import { UserProfile } from './UserProfile';
-
-const user = {
-    name: "asdf",
-    // hobbies: ["qwer", "zxcv"],
-};
+import { UserCard } from './components/UserCard';
+import { useAllUsers } from './hooks/useAllUsers';
 
 function App() {
-    const [todos, setTodos] = useState<Array<TodoType>>([]);
+    const { getUsers, userProfiles, loading, error } = useAllUsers();
 
-    const onClickFetchData = (): void => {
-        axios
-        .get<Array<TodoType>>("https://jsonplaceholder.typicode.com/todos")
-        .then((res) => {
-            setTodos(res.data);
-        }).catch((err) => {
-            console.log(err);
-        });
-    };
-  
+    const onClickFetchUser = () => getUsers();
+
     return (
         <div className="App">
-            <UserProfile user={user} />
-            <Text color="red" fontSize="18px" />
-            <button onClick={onClickFetchData}>データ取得</button>
-            {todos.map((todo) => (
-                <Todo
-                    key={todo.id}
-                    title={todo.title}
-                    userId={todo.userId}
-                    completed={todo.completed}
-                />
-            ))}
+            <button onClick={onClickFetchUser}>データ取得</button>
+            {error ? (
+                <p style={{ color: "red" }}>データ取得に失敗しました</p>
+            ) : loading ? (
+                <p>Loding...</p>
+            ) : (
+                <>
+                    {userProfiles.map((user) => (
+                        <UserCard key={user.id} user={user} />
+                    ))}
+                </>
+            )}
         </div>
     );
 }
